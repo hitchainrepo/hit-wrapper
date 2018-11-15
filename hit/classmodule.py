@@ -46,14 +46,21 @@ class RemoteRepoPlatform():
     def __init__(self):
         import requests
         import json
+        import os
         # from suds.client import Client
         # remoteip = "47.105.76.115"
         # remoteport = "8000"
         # client = Client("http://%s:%s/webservice/?wsdl"%(remoteip,remoteport))
-        self.cf = Config().getHitConfig()
-        # self.repoUrl = self.cf.get("remote \"origin\"","repoUrl")
-        self.repoName = self.cf.get("remote \"origin\"","repoName")
-        self.userName = self.cf.get("remote \"origin\"","userName")
+        # self.cf = Config().getHitConfig()
+        # # self.repoUrl = self.cf.get("remote \"origin\"","repoUrl")
+        # self.repoName = self.cf.get("remote \"origin\"","repoName")
+        # self.userName = self.cf.get("remote \"origin\"","userName")
+        gitRemoteCmd = "git remote get-url --all origin"
+        self.gitRemoteUrl = os.popen(gitRemoteCmd).read().strip('\n')
+        argsplit = self.gitRemoteUrl.split("/")
+        self.userName = argsplit[-2]
+        self.repoName = argsplit[-1].split(".")[-2]
+
         # 待补充真正的url获取IPFS地址
         self.repoIpfsUrl = "http://47.105.76.115:8000/webservice/"
         # self.remoteIpfs = client.service.getIpfsHash(self.repoName)

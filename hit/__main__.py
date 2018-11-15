@@ -292,11 +292,15 @@ def main():
     #           提交权限文件
     #       不是->返回，删除权限文件
     elif args[0] == "pull":
-        os.system("git remote set-url origin %s" % RemoteRepoPlatform().remoteIpfsUrl)
+        remoteRepoPlatform = RemoteRepoPlatform()
+        remoteUrl = remoteRepoPlatform.gitRemoteUrl
+        remoteIpfsUrl = remoteRepoPlatform.remoteIpfsUrl
+        os.system("git remote set-url origin %s" % remoteIpfsUrl)
         cmd = "git"
         for arg in args:
             cmd += " " + arg
         os.system(cmd)
+        os.system("git remote set-url origin %s" % remoteUrl)
 
     elif args[0] == "clone":
         remoteUrl = ""
