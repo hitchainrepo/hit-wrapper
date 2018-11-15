@@ -299,8 +299,10 @@ def main():
         os.system(cmd)
 
     elif args[0] == "clone":
+        remoteUrl = ""
         for i,arg in enumerate(args):
             if arg[0:26] == "http://47.105.76.115:8000/" or arg[0:19] == "47.105.76.115:8000/":
+                remoteUrl = arg
                 argsplit = arg.split("/")
                 ownername = argsplit[-2]
                 reponame = argsplit[-1].split(".")[-2]
@@ -318,11 +320,14 @@ def main():
                 else:
                     print response["response"]
                     return
-
-        cmd = "git"
-        for arg in args:
-            cmd += " " + arg
-        os.system(cmd)
+        if len(remoteUrl) > 0:
+            cmd = "git"
+            for arg in args:
+                cmd += " " + arg
+            os.system(cmd)
+            os.system("git remote set-url origin %s" % remoteUrl)
+        else:
+            print "error: wrong url."
     elif args[0] == "commit":
         # print args
         for i,arg in enumerate(args):
