@@ -27,6 +27,7 @@ def main():
 
         remoteRepo = RemoteRepoPlatform()
         # get remote ipfs hash
+        remoteUrl = remoteRepo.gitRemoteUrl
         remoteHash = remoteRepo.remoteIpfsHash
 
         username = raw_input("user name: ")
