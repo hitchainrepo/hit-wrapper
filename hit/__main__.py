@@ -14,6 +14,7 @@ import json
 import ConfigParser
 import getpass
 import requests
+import shutil
 
 
 remoteAddress = "47.105.76.115:8000"
@@ -63,7 +64,8 @@ def main():
             if lastline != "added completely!":
                 print lastline
                 os.chdir(projectLocation)
-                os.system("rm -rf %s" % pathLocalRemoteRepo)
+                shutil.rmtree("%s" % pathLocalRemoteRepo)
+                # os.system("rm -rf %s" % pathLocalRemoteRepo)
                 return
             newRepoHash = addResponse.splitlines()[-2].split(" ")[1]
             # get ipfs hash of new add repo, and publish it to ipns
@@ -83,7 +85,8 @@ def main():
             # rm temp local repo
             print updateRequest["response"]
             os.chdir(projectLocation)
-            os.system("rm -rf %s" % pathLocalRemoteRepo)
+            shutil.rmtree("%s" % pathLocalRemoteRepo)
+            # os.system("rm -rf %s" % pathLocalRemoteRepo)
         else:
             print "ERROR: Access denied to push your code to the repo"
 
@@ -131,7 +134,8 @@ def main():
             os.system("git commit -m 'hit init'")
             os.system("git push %s" % rootLocation+"/"+repoNameBare)
             os.chdir(rootLocation)
-            os.system("rm -rf %s/%s" % (rootLocation, repoNameBack))
+            shutil.rmtree("%s/%s" % (rootLocation, repoNameBack))
+            # os.system("rm -rf %s/%s" % (rootLocation, repoNameBack))
 
             os.chdir(repoNameBare)
             os.system("git update-server-info")
@@ -179,7 +183,8 @@ def main():
             # namePublishCmd2 = "ipfs name publish --key=%s %s" % (repoName, newRepoHash2)
             # os.system(namePublishCmd2)
             #
-            os.system("rm -rf %s/%s" % (rootLocation, repoNameBare))
+            shutil.rmtree("%s/%s" % (rootLocation, repoNameBare))
+            # os.system("rm -rf %s/%s" % (rootLocation, repoNameBare))
         elif len(args) == 1:
             # TODO:
             # this method is not finish
