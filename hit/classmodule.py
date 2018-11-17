@@ -77,6 +77,8 @@ class RemoteRepoPlatform():
         return True
 
 class Config():
+    # config .hit/ folder
+    # not use for now
     def __init__(self):
         self.path = ".hit/config"
 
