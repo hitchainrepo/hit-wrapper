@@ -83,6 +83,7 @@ class Config():
         self.path = ".hit/config"
 
     def initConfig(self,repoName,userName):
+        # init config file
         import ConfigParser
         from funcmodule import mkdir
         mkdir(".hit")
@@ -95,6 +96,7 @@ class Config():
             cf.write(f)
 
     def changeConfig(self,repoName,userName):
+        # update config file
         import ConfigParser
         from funcmodule import mkdir
         mkdir(".hit")
@@ -106,6 +108,7 @@ class Config():
             cf.write(f)
 
     def getHitConfig(self):
+        # get hit config
         import ConfigParser
         cf = ConfigParser.ConfigParser()
         cf.read(self.path)
@@ -113,6 +116,7 @@ class Config():
 
 class AccessControl():
     # authority management
+    # not use for now
     def __init__(self,pathhash):
         # initial
         import os
