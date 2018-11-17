@@ -32,6 +32,7 @@ def main():
 
         username = raw_input("user name: ")
         pwd = getpass.getpass('password: ')
+        # verify auth
         if remoteRepo.verifiAuth(username,pwd):
             # gen a key to store remote repo
             pathLocalRemoteRepo = genKey32()
@@ -42,6 +43,7 @@ def main():
             os.system(ipfsGetRepoCmd)
             # push repo to downloaded remote repo
             print "hit push to local"
+            # use local repo to deal push command
             gitPushCmd = "git push %s" % (pathLocalRemoteRepo)
             for arg in args[1:]:
                 # TODO:
