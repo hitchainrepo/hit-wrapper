@@ -62,6 +62,7 @@ class RemoteRepoPlatform():
         self.repoName = argsplit[-1].split(".")[-2]
 
         # 待补充真正的url获取IPFS地址
+        # the ip of server api
         self.repoIpfsUrl = "http://47.105.76.115:8000/webservice/"
         # self.remoteIpfs = client.service.getIpfsHash(self.repoName)
         ipfsHashData = json.dumps({"method":"getIpfsHash","ownername":self.userName,"reponame":self.repoName})
@@ -72,6 +73,7 @@ class RemoteRepoPlatform():
 
     def verifiAuth(self,userName,pwd):
         # TODO:
+        # need server add verifi api
         return True
 
 class Config():
