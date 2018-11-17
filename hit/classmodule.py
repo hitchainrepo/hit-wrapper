@@ -44,6 +44,7 @@ class RemoteRepo():
 
 class RemoteRepoPlatform():
     def __init__(self):
+        # get repo info from server
         import requests
         import json
         import os
