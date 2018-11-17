@@ -84,28 +84,6 @@ def main():
 
 
 
-    # elif args[0] == "create":
-    #     #TODO: chdir root project
-    #
-    #     username = args[1]
-    #     password = args[2]
-    #     repoName = args[3]
-    #     config = Config
-    #     config.changeConfig(repoName,username)
-    #     addResponse = os.popen("ipfs add -rH .").read()
-    #     lastline = addResponse.splitlines()[-1].lower()
-    #     if lastline != "added completely!":
-    #         print lastline
-    #         return
-    #     newRepoHash = addResponse.splitlines()[-2].split(" ")[1]
-    #     # TODO: change web ipfs hash api
-    #     dataUpdate = json.dumps({"method": "changeIpfsHash", "username": username, "password": password,
-    #                              "reponame": repoName, "ownername": username,
-    #                              "ipfshash": newRepoHash})
-    #     updateRequest = requests.post("http://" + remoteAddress + "/webservice/", data=dataUpdate)
-    #     print updateRequest["response"]
-
-
     elif args[0] == "transfer":
         if args[1][0:4] == "http":
             repoNameBare = args[1].split("/")[-1]
@@ -156,25 +134,6 @@ def main():
 
             print response["response"]
 
-
-            # result = response.json()
-            # url = "http://localhost:8000/newRepo?username=" + username + "&password=" + password + "&reponame=" + newRepoName + "&ipfsHash=" + newRepoHash
-            # req = urllib2.Request(url)
-            # res_data = urllib2.urlopen(req)
-            # res = res_data.read().decode('utf-8')
-            # res = json.loads(res)
-            # if res["response"] != "success":
-            #     return
-
-            # accessControl = AccessControl(remoteHash)
-            # accessControl.setKeyName(repoName)
-            # # initial authority file
-            # accessControl.initJson()
-            #
-            # newRepoHash2 = os.popen("ipfs add -r .").read().splitlines()[-1].split(" ")[1]
-            # namePublishCmd2 = "ipfs name publish --key=%s %s" % (repoName, newRepoHash2)
-            # os.system(namePublishCmd2)
-            #
             shutil.rmtree("%s/%s" % (rootLocation, repoNameBare))
             # os.system("rm -rf %s/%s" % (rootLocation, repoNameBare))
         elif len(args) == 1:
