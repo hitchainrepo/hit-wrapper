@@ -19,6 +19,7 @@ def gitPushExchange(pathLocalRemoteRepo,args):
 
     return pushCmd
 
+# gen a random 32 byte key
 def genKey32():
     # gen a random 32 byte key
     import random
@@ -42,6 +43,7 @@ def mkdir(path):
 
 def readPublicKey(keyPath):
     # use rsa to read a publickey file
+    # not use
     with open(keyPath, 'r') as f:
         import rsa
         pubkey = rsa.PublicKey.load_pkcs1(f.read().encode())
