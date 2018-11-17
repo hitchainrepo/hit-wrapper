@@ -55,11 +55,7 @@ def main():
             os.chdir(pathLocalRemoteRepo)
             # update git repo
             os.system("git update-server-info")
-            # gen a timestamp file for new repo
-            # os.system("echo " + repr(time.time()) + " > timestamp")
-            # add new repo to ipfs network
-            # use ipfs add -r .
-            # print "add repo to ipfs network"
+
             addResponse = os.popen("ipfs add -rH .").read()
             lastline = addResponse.splitlines()[-1].lower()
             if lastline != "added completely!":
@@ -69,21 +65,14 @@ def main():
                 # os.system("rm -rf %s" % pathLocalRemoteRepo)
                 return
             newRepoHash = addResponse.splitlines()[-2].split(" ")[1]
-            # get ipfs hash of new add repo, and publish it to ipns
-            # accessControl.savePublicKeyOfIpns(accessControl.getPublicKeyFromJson())
-            # print "publish file to ipns %s" % remoteHash
-            # namePublishCmd = "ipfs name publish --key=%s %s" % (remoteHash,newRepoHash)
+
             dataUpdate = {"method":"changeIpfsHash","username":username,"password":pwd,
                                      "reponame":remoteRepo.repoName,"ownername":remoteRepo.userName,
                                      "ipfsHash":newRepoHash}
             dataUpdate = json.dumps(dataUpdate)
             # print dataUpdate
             updateRequest = requests.post(remoteRepo.repoIpfsUrl, data=dataUpdate).json()
-            # os.system(namePublishCmd)
-            # accessControl.deleteIPNSKey()
-            # else:
-            #     print "Err: The remote repo has been updated by other user, please push the repo again."
-            # rm temp local repo
+
             print updateRequest["response"]
             os.chdir(projectLocation)
             shutil.rmtree("%s" % pathLocalRemoteRepo)
