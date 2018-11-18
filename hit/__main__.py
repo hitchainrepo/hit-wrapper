@@ -134,7 +134,7 @@ def main():
 
             print response["response"]
 
-            shutil.rmtree("%s/%s" % (rootLocation, repoNameBare))
+            shutil.rmtree("%s/%s" % (rootLocation, repoNameBare),onerror=onerror)
             # os.system("rm -rf %s/%s" % (rootLocation, repoNameBare))
         elif len(args) == 1:
             # TODO:
