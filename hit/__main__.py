@@ -63,7 +63,7 @@ def main():
             if lastline != "added completely!":
                 print lastline
                 os.chdir(projectLocation)
-                shutil.rmtree("%s" % pathLocalRemoteRepo)
+                shutil.rmtree("%s" % pathLocalRemoteRepo, onerror=onerror)
                 # os.system("rm -rf %s" % pathLocalRemoteRepo)
                 return
             newRepoHash = addResponse.splitlines()[-2].split(" ")[1]
@@ -77,7 +77,7 @@ def main():
 
             print updateRequest["response"]
             os.chdir(projectLocation)
-            shutil.rmtree("%s" % pathLocalRemoteRepo)
+            shutil.rmtree("%s" % pathLocalRemoteRepo, onerror=onerror)
             # os.system("rm -rf %s" % pathLocalRemoteRepo)
         else:
             print "ERROR: Access denied to push your code to the repo"
@@ -87,56 +87,34 @@ def main():
     elif args[0] == "transfer":
         if args[1][0:4] == "http":
             repoNameBare = args[1].split("/")[-1]
-            # accessControl = AccessControl()
+
             rootLocation = os.getcwd()
             os.system("git clone --bare %s" % (args[1]))
-            # repoNameBack = genKey32()
-            # os.system("git clone %s %s"%(args[1],repoNameBack))
-            # os.chdir(repoNameBack)
 
             username = raw_input("user name: ")
             password = getpass.getpass('password: ')
             newRepoName = raw_input("repository name: ")
 
-            # config = Config()
-            # config.initConfig(newRepoName, username)
-            # os.system("git add .")
-            # os.system("git commit -m 'hit init'")
-            # os.system("git push %s" % rootLocation+"/"+repoNameBare)
-            # os.chdir(rootLocation)
-            # shutil.rmtree("%s/%s" % (rootLocation, repoNameBack))
-            # os.system("rm -rf %s/%s" % (rootLocation, repoNameBack))
-
             os.chdir(repoNameBare)
             os.system("git update-server-info")
-            # os.system("echo " + repr(time.time()) + " > timestamp")  # 生成一个时间戳文件
 
             response = os.popen("ipfs add -rH .").read()
             lastline = response.splitlines()[-1].lower()
             if lastline != "added completely!":
                 print lastline
                 return
-            # newRepoHash = response.splitlines()[-1].split(" ")[1]
-            newRepoHash = response.splitlines()[-2].split(" ")[1]
-            # os.popen("ipfs key gen --type=rsa --size=2048 %s" % repoName).read()
-            # namePublishCmd = "ipfs name publish --key=%s %s" % (repoName, newRepoHash)
-            # remoteHash = os.popen(namePublishCmd).read().split(" ")[2][0:-1]
 
-            # connect to the restful webservice
+            newRepoHash = response.splitlines()[-2].split(" ")[1]
             data = {"method": "hitTransfer", "username": username, "password": password, "reponame": newRepoName, "ipfsHash":newRepoHash}
             data = json.dumps(data)
             # print "update ipfs hash to %s" % remoteAddress
             response = requests.post("http://" + remoteAddress + "/webservice/", data=data)
             response = response.json()
-            # if response["response"] != "success":
-            #     print response["response"]
-            #     return
 
             print response["response"]
 
             os.chdir(rootLocation)
             shutil.rmtree("%s/%s" % (rootLocation, repoNameBare),onerror=onerror)
-            # os.system("rm -rf %s/%s" % (rootLocation, repoNameBare))
         elif len(args) == 1:
             # TODO:
             # this method is not finish
