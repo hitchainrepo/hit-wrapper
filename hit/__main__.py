@@ -122,6 +122,7 @@ def main():
                 print response["response"]
 
                 os.chdir(rootLocation)
+                # delete useless file
                 shutil.rmtree("%s/%s" % (rootLocation, repoNameBare), onerror=onerror)
 
             else:
