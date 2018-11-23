@@ -111,6 +111,7 @@ def main():
                     return
 
                 newRepoHash = response.splitlines()[-2].split(" ")[1]
+                # add repo ipfs hash to server
                 data = {"method": "hitTransfer", "username": username, "password": password, "reponame": newRepoName,
                         "ipfsHash": newRepoHash}
                 data = json.dumps(data)
