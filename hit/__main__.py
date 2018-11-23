@@ -88,12 +88,16 @@ def main():
         if args[1][0:4] == "http":
             repoNameBare = args[1].split("/")[-1]
 
-            rootLocation = os.getcwd()
-            os.system("git clone --bare %s" % (args[1]))
-
             username = raw_input("user name: ")
             password = getpass.getpass('password: ')
             newRepoName = raw_input("repository name: ")
+
+            # TODO：
+            # verify user authority
+
+            rootLocation = os.getcwd()
+            os.system("git clone --bare %s" % (args[1]))
+
 
             os.chdir(repoNameBare)
             os.system("git update-server-info")
