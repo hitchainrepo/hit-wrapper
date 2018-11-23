@@ -100,25 +100,32 @@ def main():
 
 
             os.chdir(repoNameBare)
+            # update hit repo info
             os.system("git update-server-info")
 
             response = os.popen("ipfs add -rH .").read()
-            lastline = response.splitlines()[-1].lower()
-            if lastline != "added completely!":
-                print lastline
-                return
+            if len(response.splitlines()) > 0:
+                lastline = response.splitlines()[-1].lower()
+                if lastline != "added completely!":
+                    print lastline
+                    return
 
-            newRepoHash = response.splitlines()[-2].split(" ")[1]
-            data = {"method": "hitTransfer", "username": username, "password": password, "reponame": newRepoName, "ipfsHash":newRepoHash}
-            data = json.dumps(data)
-            # print "update ipfs hash to %s" % remoteAddress
-            response = requests.post("http://" + remoteAddress + "/webservice/", data=data)
-            response = response.json()
+                newRepoHash = response.splitlines()[-2].split(" ")[1]
+                data = {"method": "hitTransfer", "username": username, "password": password, "reponame": newRepoName,
+                        "ipfsHash": newRepoHash}
+                data = json.dumps(data)
+                # print "update ipfs hash to %s" % remoteAddress
+                response = requests.post("http://" + remoteAddress + "/webservice/", data=data)
+                response = response.json()
 
-            print response["response"]
+                print response["response"]
 
-            os.chdir(rootLocation)
-            shutil.rmtree("%s/%s" % (rootLocation, repoNameBare),onerror=onerror)
+                os.chdir(rootLocation)
+                shutil.rmtree("%s/%s" % (rootLocation, repoNameBare), onerror=onerror)
+
+            else:
+                print "ipfs add error"
+
         elif len(args) == 1:
             # TODO:
             # this method is not finish
