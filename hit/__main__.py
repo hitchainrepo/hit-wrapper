@@ -33,7 +33,7 @@ def main():
         username = raw_input("user name: ")
         pwd = getpass.getpass('password: ')
         # verify auth
-        if remoteRepo.verifiAuth(username,pwd):
+        if remoteRepo.verifiAuth(username,pwd): # TODO: 需要修改为verifiAuthRepo
             # gen a key to store remote repo
             pathLocalRemoteRepo = genKey32()
             # download remote repo to local
@@ -94,39 +94,42 @@ def main():
 
             # TODO：
             # verify user authority
+            remoteRepo = RemoteRepoPlatform()
+            if remoteRepo.verifiAuth(username,password):
+                rootLocation = os.getcwd()
+                os.system("git clone --bare %s" % (args[1]))
 
-            rootLocation = os.getcwd()
-            os.system("git clone --bare %s" % (args[1]))
 
+                os.chdir(repoNameBare)
+                # update hit repo info
+                os.system("git update-server-info")
 
-            os.chdir(repoNameBare)
-            # update hit repo info
-            os.system("git update-server-info")
+                response = os.popen("ipfs add -rH .").read()
+                if len(response.splitlines()) > 0:
+                    lastline = response.splitlines()[-1].lower()
+                    if lastline != "added completely!":
+                        print lastline
+                        return
 
-            response = os.popen("ipfs add -rH .").read()
-            if len(response.splitlines()) > 0:
-                lastline = response.splitlines()[-1].lower()
-                if lastline != "added completely!":
-                    print lastline
-                    return
+                    newRepoHash = response.splitlines()[-2].split(" ")[1]
+                    # add repo ipfs hash to server
+                    data = {"method": "hitTransfer", "username": username, "password": password, "reponame": newRepoName,
+                            "ipfsHash": newRepoHash}
+                    data = json.dumps(data)
+                    # print "update ipfs hash to %s" % remoteAddress
+                    response = requests.post("http://" + remoteAddress + "/webservice/", data=data)
+                    response = response.json()
 
-                newRepoHash = response.splitlines()[-2].split(" ")[1]
-                # add repo ipfs hash to server
-                data = {"method": "hitTransfer", "username": username, "password": password, "reponame": newRepoName,
-                        "ipfsHash": newRepoHash}
-                data = json.dumps(data)
-                # print "update ipfs hash to %s" % remoteAddress
-                response = requests.post("http://" + remoteAddress + "/webservice/", data=data)
-                response = response.json()
+                    print response["response"]
 
-                print response["response"]
+                    os.chdir(rootLocation)
+                    # delete useless file
+                    shutil.rmtree("%s/%s" % (rootLocation, repoNameBare), onerror=onerror)
 
-                os.chdir(rootLocation)
-                # delete useless file
-                shutil.rmtree("%s/%s" % (rootLocation, repoNameBare), onerror=onerror)
-
+                else:
+                    print "ipfs add error"
             else:
-                print "ipfs add error"
+                print "error: wrong user name or password."
 
         elif len(args) == 1:
             # TODO:
