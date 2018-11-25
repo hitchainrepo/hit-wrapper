@@ -85,7 +85,7 @@ class RemoteRepoPlatform():
     def verifiAuthRepo(self,userName,pwd,ownerName,repoName):
         import json
         import requests
-        apiData = json.dumps({"method": "", "username": userName, "password": pwd})
+        apiData = json.dumps({"method":"checkUserPasswordRepo", "username": userName, "password": pwd, "reponame": repoName, "ownername":ownerName})
         response = requests.post(self.remoteIpfsUrl, data=apiData).json()
         if response["response"] == "success":
             return True
