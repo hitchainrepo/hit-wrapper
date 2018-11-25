@@ -73,9 +73,25 @@ class RemoteRepoPlatform():
             self.remoteIpfsUrl = "http://localhost:8080/ipfs/" + self.remoteIpfsHash
 
     def verifiAuth(self,userName,pwd):
-        # TODO:
-        # need server add verifi api
-        return True
+        import json
+        import requests
+        apiData = json.dumps({"method":"checkUserPassword","username":userName,"password":pwd})
+        response = requests.post(self.remoteIpfsUrl,data=apiData).json()
+        if response["response"] == "success":
+            return True
+        else:
+            return False
+
+    def verifiAuthRepo(self,userName,pwd,ownerName,repoName):
+        import json
+        import requests
+        apiData = json.dumps({"method": "", "username": userName, "password": pwd})
+        response = requests.post(self.remoteIpfsUrl, data=apiData).json()
+        if response["response"] == "success":
+            return True
+        else:
+            return False
+
 
 class Config():
     # config .hit/ folder
