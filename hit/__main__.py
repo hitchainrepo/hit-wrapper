@@ -27,7 +27,6 @@ def main():
 
         remoteRepo = RemoteRepoPlatform()
         # get remote ipfs hash
-        remoteUrl = remoteRepo.gitRemoteUrl
         remoteHash = remoteRepo.remoteIpfsHash
         ownername = remoteRepo.userName
         reponame = remoteRepo.repoName
@@ -41,10 +40,10 @@ def main():
             # download remote repo to local
             print "hit get ipfs repo to local"
             ipfsGetRepoCmd = "ipfs get %s -o %s" % (remoteHash,pathLocalRemoteRepo) # 要重命名
-            print ipfsGetRepoCmd
             os.system(ipfsGetRepoCmd)
+            print "done."
             # push repo to downloaded remote repo
-            print "hit push to local"
+            print "hit push to local..."
             # use local repo to deal push command
             gitPushCmd = "git push %s" % (pathLocalRemoteRepo)
             for arg in args[1:]:
@@ -52,35 +51,33 @@ def main():
                 # if user add a remote url, there should changes it to hit command
                 gitPushCmd += " " + arg
             os.system(gitPushCmd)
-            # get timestamp (remoteTimeStamp) of the remote repo
-            # print "compare local repo with remote repo"
-            # remoteTimeStamp = os.popen("ipfs cat %s/timestamp" % remoteFileHash).read()
-            # if remoteRepo.timeStamp == remoteTimeStamp:
+            print "done"
             os.chdir(pathLocalRemoteRepo)
             # update git repo
             os.system("git update-server-info")
 
+            # add file to ipfs network
             addResponse = os.popen("ipfs add -rH .").read()
             lastline = addResponse.splitlines()[-1].lower()
             if lastline != "added completely!":
                 print lastline
                 os.chdir(projectLocation)
                 shutil.rmtree("%s" % pathLocalRemoteRepo, onerror=onerror)
-                # os.system("rm -rf %s" % pathLocalRemoteRepo)
                 return
             newRepoHash = addResponse.splitlines()[-2].split(" ")[1]
 
+            # update IPFS hash in the server
             dataUpdate = {"method":"changeIpfsHash","username":username,"password":pwd,
                                      "reponame":reponame,"ownername":ownername,
                                      "ipfsHash":newRepoHash}
             dataUpdate = json.dumps(dataUpdate)
-            # print dataUpdate
+
             updateRequest = requests.post(remoteRepo.repoIpfsUrl, data=dataUpdate).json()
 
             print updateRequest["response"]
             os.chdir(projectLocation)
             shutil.rmtree("%s" % pathLocalRemoteRepo, onerror=onerror)
-            # os.system("rm -rf %s" % pathLocalRemoteRepo)
+
         else:
             print "ERROR: Access denied to push your code to the repo"
 
