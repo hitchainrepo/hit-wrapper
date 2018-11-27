@@ -29,11 +29,13 @@ def main():
         # get remote ipfs hash
         remoteUrl = remoteRepo.gitRemoteUrl
         remoteHash = remoteRepo.remoteIpfsHash
+        ownername = remoteRepo.userName
+        reponame = remoteRepo.repoName
 
         username = raw_input("user name: ")
         pwd = getpass.getpass('password: ')
         # verify auth
-        if remoteRepo.verifiAuthRepo(username,pwd,): # TODO: 需要修改为verifiAuthRepo
+        if remoteRepo.verifiAuthRepo(username,pwd,ownername,reponame): # TODO: 需要修改为verifiAuthRepo
             # gen a key to store remote repo
             pathLocalRemoteRepo = genKey32()
             # download remote repo to local
@@ -69,7 +71,7 @@ def main():
             newRepoHash = addResponse.splitlines()[-2].split(" ")[1]
 
             dataUpdate = {"method":"changeIpfsHash","username":username,"password":pwd,
-                                     "reponame":remoteRepo.repoName,"ownername":remoteRepo.userName,
+                                     "reponame":reponame,"ownername":ownername,
                                      "ipfsHash":newRepoHash}
             dataUpdate = json.dumps(dataUpdate)
             # print dataUpdate
