@@ -33,7 +33,7 @@ def main():
         username = raw_input("user name: ")
         pwd = getpass.getpass('password: ')
         # verify auth
-        if remoteRepo.verifiAuth(username,pwd): # TODO: 需要修改为verifiAuthRepo
+        if remoteRepo.verifiAuthRepo(username,pwd,): # TODO: 需要修改为verifiAuthRepo
             # gen a key to store remote repo
             pathLocalRemoteRepo = genKey32()
             # download remote repo to local
@@ -129,7 +129,7 @@ def main():
                 else:
                     print "ipfs add error"
             else:
-                print "error: wrong user name or password."
+                print "ERROR: Wrong user name or password."
 
         elif len(args) == 1:
             # TODO:
