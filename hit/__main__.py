@@ -47,9 +47,9 @@ def main():
             # use local repo to deal push command
             gitPushCmd = "git push %s" % (pathLocalRemoteRepo)
             for arg in args[1:]:
-                # TODO:
-                # if user add a remote url, there should changes it to hit command
-                gitPushCmd += " " + arg
+
+                gitPushCmd = dealArgs(gitPushCmd,arg)
+                # gitPushCmd += " " + arg
             os.system(gitPushCmd)
             print "done"
             os.chdir(pathLocalRemoteRepo)
@@ -65,6 +65,7 @@ def main():
                 shutil.rmtree("%s" % pathLocalRemoteRepo, onerror=onerror)
                 return
             newRepoHash = addResponse.splitlines()[-2].split(" ")[1]
+
 
             # update IPFS hash in the server
             dataUpdate = {"method":"changeIpfsHash","username":username,"password":pwd,

@@ -70,3 +70,9 @@ def onerror(func, path, exc_info):
         func(path)
     else:
         raise
+
+def dealArgs(gitPushCmd,arg):
+    # TODO:
+    # if user add a remote url, there should changes it to hit command
+    gitPushCmd += " " + arg
+    return gitPushCmd
