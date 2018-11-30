@@ -95,7 +95,7 @@ class RemoteRepoPlatform():
     def getIpfsHash(self,hitUrl):
         import json
         import requests
-        ownername,reponame = parserHitUrl(hitUrl)
+        ownername,reponame = self.parserHitUrl(hitUrl)
         ipfsHashData = json.dumps(
             {"method": "getIpfsHash", "ownername": ownername, "reponame": reponame})
         response = requests.post("http://47.105.76.115:8000/webservice/", data=ipfsHashData).json()
@@ -108,7 +108,7 @@ class RemoteRepoPlatform():
     def parserHitUrl(self,hitUrl):
         # TODO:
         # 返回处理结果
-        return True
+        return True,True
 
 
 
