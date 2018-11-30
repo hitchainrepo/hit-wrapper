@@ -34,7 +34,7 @@ def main():
         username = raw_input("user name: ")
         pwd = getpass.getpass('password: ')
         # verify auth
-        if remoteRepo.verifiAuthRepo(username,pwd,ownername,reponame): # TODO: 需要修改为verifiAuthRepo
+        if remoteRepo.verifiAuthRepo(username,pwd,ownername,reponame):
             # gen a key to store remote repo
             pathLocalRemoteRepo = genKey32()
             # download remote repo to local
