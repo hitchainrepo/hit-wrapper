@@ -66,7 +66,6 @@ def main():
                 return
             newRepoHash = addResponse.splitlines()[-2].split(" ")[1]
 
-
             # update IPFS hash in the server
             dataUpdate = {"method":"changeIpfsHash","username":username,"password":pwd,
                                      "reponame":reponame,"ownername":ownername,
@@ -92,14 +91,10 @@ def main():
             password = getpass.getpass('password: ')
             newRepoName = raw_input("repository name: ")
 
-            # TODO：
-            # verify user authority
             remoteRepo = RemoteRepoPlatform()
             if remoteRepo.verifiAuth(username,password):
                 rootLocation = os.getcwd()
                 os.system("git clone --bare %s" % (args[1]))
-
-
                 os.chdir(repoNameBare)
                 # update hit repo info
                 os.system("git update-server-info")
@@ -162,6 +157,7 @@ def main():
         remoteUrl = ""
         for i,arg in enumerate(args):
             if arg[0:26] == "http://47.105.76.115:8000/" or arg[0:19] == "47.105.76.115:8000/":
+                # parser url, get owner name and repo name
                 remoteUrl = arg
                 argsplit = arg.split("/")
                 ownername = argsplit[-2]

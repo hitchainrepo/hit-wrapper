@@ -92,6 +92,25 @@ class RemoteRepoPlatform():
         else:
             return False
 
+    def getIpfsHash(self,hitUrl):
+        import json
+        import requests
+        ownername,reponame = parserHitUrl(hitUrl)
+        ipfsHashData = json.dumps(
+            {"method": "getIpfsHash", "ownername": ownername, "reponame": reponame})
+        response = requests.post("http://47.105.76.115:8000/webservice/", data=ipfsHashData).json()
+        if response["response"] == "success":
+            remoteIpfsHash = response["ipfs_hash"]
+            return remoteIpfsHash
+        else:
+            return 0
+
+    def parserHitUrl(self,hitUrl):
+        # TODO:
+        # 返回处理结果
+        return True
+
+
 
 class Config():
     # config .hit/ folder
