@@ -114,11 +114,14 @@ class RemoteRepoPlatform():
             reponame = argsplit[-1].split(".")[-2]
             return ownername,reponame
         else:
-            print 
+            print "error hit url"
             return 0,0
 
     def verifyHitUrl(self,hitUrl):
-        return True
+        if hitUrl[0:26] == "http://47.105.76.115:8000/" or hitUrl[0:19] == "47.105.76.115:8000/":
+            return True
+        else:
+            return False
 
 class Config():
     # config .hit/ folder
