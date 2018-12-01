@@ -108,9 +108,12 @@ class RemoteRepoPlatform():
     def parserHitUrl(self,hitUrl):
         # TODO:
         # 返回处理结果
-        return True,True
+        if self.verifyHitUrl(hitUrl):
 
+            return True,True
 
+    def verifyHitUrl(hitUrl):
+        return True
 
 class Config():
     # config .hit/ folder
