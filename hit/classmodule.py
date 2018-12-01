@@ -109,10 +109,15 @@ class RemoteRepoPlatform():
         # TODO:
         # 返回处理结果
         if self.verifyHitUrl(hitUrl):
+            argsplit = hitUrl.split("/")
+            ownername = argsplit[-2]
+            reponame = argsplit[-1].split(".")[-2]
+            return ownername,reponame
+        else:
+            print 
+            return 0,0
 
-            return True,True
-
-    def verifyHitUrl(hitUrl):
+    def verifyHitUrl(self,hitUrl):
         return True
 
 class Config():
