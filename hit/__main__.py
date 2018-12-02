@@ -48,7 +48,7 @@ def main():
             gitPushCmd = "git push %s" % (pathLocalRemoteRepo)
             for arg in args[1:]:
 
-                gitPushCmd = dealArgs(gitPushCmd,arg)
+                gitPushCmd = remoteRepo.dealArgs(gitPushCmd,arg)
                 # gitPushCmd += " " + arg
             os.system(gitPushCmd)
             print "done"
@@ -186,6 +186,8 @@ def main():
             os.system("git remote set-url origin %s" % remoteUrl)
         else:
             print "error: wrong url."
+
+
     elif args[0] == "commit":
         # print args
         for i,arg in enumerate(args):

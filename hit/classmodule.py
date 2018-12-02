@@ -123,6 +123,12 @@ class RemoteRepoPlatform():
         else:
             return False
 
+    def dealArgs(self, gitPushCmd, arg):
+        # TODO:
+        # if user add a remote url, there should changes it to hit command
+        gitPushCmd += " " + arg
+        return gitPushCmd
+
 class Config():
     # config .hit/ folder
     # not use for now
