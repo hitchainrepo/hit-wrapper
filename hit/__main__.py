@@ -155,13 +155,15 @@ def main():
 
     elif args[0] == "clone":
         remoteUrl = ""
+        remoteRepoPlatform = RemoteRepoPlatform()
         for i,arg in enumerate(args):
-            if arg[0:26] == "http://47.105.76.115:8000/" or arg[0:19] == "47.105.76.115:8000/":
+            if remoteRepoPlatform.verifyHitUrl(arg):
                 # parser url, get owner name and repo name
-                remoteUrl = arg
-                argsplit = arg.split("/")
-                ownername = argsplit[-2]
-                reponame = argsplit[-1].split(".")[-2]
+                # remoteUrl = arg
+                # argsplit = arg.split("/")
+                # ownername = argsplit[-2]
+                # reponame = argsplit[-1].split(".")[-2]
+                ownername,reponame = remoteRepoPlatform.parserHitUrl(arg)
                 ipfsHashData = json.dumps(
                     {"method": "getIpfsHash", "ownername": ownername, "reponame": reponame})
                 response = requests.post("http://47.105.76.115:8000/webservice/", data=ipfsHashData).json()
