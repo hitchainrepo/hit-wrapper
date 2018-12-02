@@ -82,6 +82,10 @@ class RemoteRepoPlatform():
         else:
             return False
 
+    def getRepoteIpfsHashByRepo(self,ownerName,RepoName):
+        # TODO: finish
+        return 0
+
     def verifiAuthRepo(self,userName,pwd,ownerName,repoName):
         import json
         import requests
@@ -126,7 +130,10 @@ class RemoteRepoPlatform():
     def dealArgs(self, gitPushCmd, arg):
         # TODO:
         # if user add a remote url, there should changes it to hit command
-        gitPushCmd += " " + arg
+        if self.verifyHitUrl(arg):
+            gitPushCmd += ""
+        else:
+            gitPushCmd += " " + arg
         return gitPushCmd
 
 class Config():

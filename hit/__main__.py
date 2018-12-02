@@ -35,6 +35,8 @@ def main():
         pwd = getpass.getpass('password: ')
         # verify auth
         if remoteRepo.verifiAuthRepo(username,pwd,ownername,reponame):
+            # TODO:
+            # 识别hiturl，然后处理为相应的地址
             # gen a key to store remote repo
             pathLocalRemoteRepo = genKey32()
             # download remote repo to local
@@ -47,7 +49,6 @@ def main():
             # use local repo to deal push command
             gitPushCmd = "git push %s" % (pathLocalRemoteRepo)
             for arg in args[1:]:
-
                 gitPushCmd = remoteRepo.dealArgs(gitPushCmd,arg)
                 # gitPushCmd += " " + arg
             os.system(gitPushCmd)
