@@ -165,9 +165,10 @@ def main():
                 # ownername = argsplit[-2]
                 # reponame = argsplit[-1].split(".")[-2]
                 ownername,reponame = remoteRepoPlatform.parserHitUrl(arg)
-                ipfsHashData = json.dumps(
-                    {"method": "getIpfsHash", "ownername": ownername, "reponame": reponame})
-                response = requests.post("http://47.105.76.115:8000/webservice/", data=ipfsHashData).json()
+                # ipfsHashData = json.dumps(
+                #     {"method": "getIpfsHash", "ownername": ownername, "reponame": reponame})
+                # response = requests.post("http://47.105.76.115:8000/webservice/", data=ipfsHashData).json()
+                response = remoteRepoPlatform.getRemoteIpfsHashByRepo(ownername,reponame)
                 if response["response"] == "success":
                     remoteIpfsHash = response["ipfs_hash"]
                     remoteIpfsUrl = "http://localhost:8080/ipfs/" + remoteIpfsHash
