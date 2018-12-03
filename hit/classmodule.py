@@ -82,9 +82,12 @@ class RemoteRepoPlatform():
         else:
             return False
 
-    def getRepoteIpfsHashByRepo(self,ownerName,RepoName):
-        # TODO: finish
-        return 0
+    def getRemoteIpfsHashByRepo(self,ownerName,repoName):
+        import json
+        import requests
+        ipfsHashData = json.dumps({"method": "getIpfsHash", "ownername": ownerName, "reponame": repoName})
+        response = requests.post(self.repoIpfsUrl, data=ipfsHashData).json()
+        return response
 
     def verifiAuthRepo(self,userName,pwd,ownerName,repoName):
         import json
