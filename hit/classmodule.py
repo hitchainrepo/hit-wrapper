@@ -89,6 +89,17 @@ class RemoteRepoPlatform():
         response = requests.post(self.repoIpfsUrl, data=ipfsHashData).json()
         return response
 
+    def changeIpfsHash(self,username,pwd,reponame,ownername,ipfshash):
+        import json
+        import requests
+        dataUpdate = {"method": "changeIpfsHash", "username": username, "password": pwd,
+                      "reponame": reponame, "ownername": ownername,
+                      "ipfsHash": ipfshash}
+        dataUpdate = json.dumps(dataUpdate)
+
+        updateRequest = requests.post(self.repoIpfsUrl, data=dataUpdate).json()
+        return updateRequest
+
     def verifiAuthRepo(self,userName,pwd,ownerName,repoName):
         import json
         import requests
