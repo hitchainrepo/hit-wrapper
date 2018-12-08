@@ -110,12 +110,14 @@ def main():
 
                     newRepoHash = response.splitlines()[-2].split(" ")[1]
                     # add repo ipfs hash to server
-                    data = {"method": "hitTransfer", "username": username, "password": password, "reponame": newRepoName,
-                            "ipfsHash": newRepoHash}
-                    data = json.dumps(data)
-                    # print "update ipfs hash to %s" % remoteAddress
-                    response = requests.post("http://" + remoteAddress + "/webservice/", data=data)
-                    response = response.json()
+                    # data = {"method": "hitTransfer", "username": username, "password": password, "reponame": newRepoName,
+                    #         "ipfsHash": newRepoHash}
+                    # data = json.dumps(data)
+                    # # print "update ipfs hash to %s" % remoteAddress
+                    # response = requests.post("http://" + remoteAddress + "/webservice/", data=data)
+                    # response = response.json()
+
+                    response = remoteRepo.hitTransfer(username,password,newRepoName,newRepoHash)
 
                     print response["response"]
 
