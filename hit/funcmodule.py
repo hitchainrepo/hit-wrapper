@@ -71,7 +71,10 @@ def onerror(func, path, exc_info):
     else:
         raise
 
-def handleIpfsAddResponse(addResponse):
-    return False
+# def handleIpfsAddResponse(addResponse):
+#     lastline = addResponse.splitlines()[-1].lower()
+#     if lastline != "added completely!":
+#         print lastline
+#     return False
 
 

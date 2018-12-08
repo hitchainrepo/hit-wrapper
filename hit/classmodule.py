@@ -82,6 +82,16 @@ class RemoteRepoPlatform():
         else:
             return False
 
+    def hitTransfer(self,username,password,newRepoName,newRepoHash):
+        import json
+        import requests
+        data = {"method": "hitTransfer", "username": username, "password": password, "reponame": newRepoName,
+                "ipfsHash": newRepoHash}
+        data = json.dumps(data)
+        # print "update ipfs hash to %s" % remoteAddress
+        response = requests.post(self.repoIpfsUrl, data=data).json()
+        return response
+
     def getRemoteIpfsHashByRepo(self,ownerName,repoName):
         import json
         import requests
