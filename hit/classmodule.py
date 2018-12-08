@@ -133,7 +133,7 @@ class RemoteRepoPlatform():
             return ownername,reponame
         else:
             print "error hit url"
-            return 0,0
+            return False
 
     def verifyHitUrl(self,hitUrl):
         if hitUrl[0:26] == "http://47.105.76.115:8000/" or hitUrl[0:19] == "47.105.76.115:8000/":

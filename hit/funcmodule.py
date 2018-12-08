@@ -71,4 +71,7 @@ def onerror(func, path, exc_info):
     else:
         raise
 
+def handleIpfsAddResponse(addResponse):
+    return False
+
 

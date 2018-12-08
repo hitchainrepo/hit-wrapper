@@ -68,12 +68,13 @@ def main():
             newRepoHash = addResponse.splitlines()[-2].split(" ")[1]
 
             # update IPFS hash in the server
-            dataUpdate = {"method":"changeIpfsHash","username":username,"password":pwd,
-                                     "reponame":reponame,"ownername":ownername,
-                                     "ipfsHash":newRepoHash}
-            dataUpdate = json.dumps(dataUpdate)
+            # dataUpdate = {"method":"changeIpfsHash","username":username,"password":pwd,
+            #                          "reponame":reponame,"ownername":ownername,
+            #                          "ipfsHash":newRepoHash}
+            # dataUpdate = json.dumps(dataUpdate)
 
-            updateRequest = requests.post(remoteRepo.repoIpfsUrl, data=dataUpdate).json()
+            # updateRequest = requests.post(remoteRepo.repoIpfsUrl, data=dataUpdate).json()
+            updateRequest = remoteRepo.changeIpfsHash(username,pwd,reponame,ownername,newRepoHash)
 
             print updateRequest["response"]
             os.chdir(projectLocation)
