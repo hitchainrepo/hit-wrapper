@@ -134,16 +134,29 @@ def main():
             # TODO:
             # this method is not finish
             # we use this to upload a local repo to ipfs netwrok
-            repoName = args[1].split("/")[-1]
+            # repoName = args[1].split("/")[-1]
+
+            username = raw_input("user name: ")
+            password = getpass.getpass('password: ')
+            newRepoName = raw_input("repository name: ")
+
+            remoteRepo = RemoteRepoPlatform()
+            if remoteRepo.verifiAuth(username, password):
+                rootLocation = os.getcwd()
+                os.system("git clone --bare %s" % (args[1]))
+                os.chdir(newRepoName)
+                # update hit repo info
+                os.system("git update-server-info")
+
             # change local repo to a bare repo
             # os.system("git clone --bare %s" % (args[1]))
             projectLocation = os.getcwd()
-            os.chdir(repoName)
-            os.system("git update-server-info")
-            newRepoHash = os.popen("ipfs add -rH .").read().splitlines()[-1].split(" ")[1]
-            remoteHash = os.popen("ipfs key gen --type=rsa --size=2048 %s" % repoName).read()
-            namePublishCmd = "ipfs name publish --key=%s %s" % (remoteHash, newRepoHash)
-            os.system(namePublishCmd)
+            # os.chdir(repoName)
+            # os.system("git update-server-info")
+            # newRepoHash = os.popen("ipfs add -rH .").read().splitlines()[-1].split(" ")[1]
+            # remoteHash = os.popen("ipfs key gen --type=rsa --size=2048 %s" % repoName).read()
+            # namePublishCmd = "ipfs name publish --key=%s %s" % (remoteHash, newRepoHash)
+            # os.system(namePublishCmd)
             return
 
     elif args[0] == "pull":
