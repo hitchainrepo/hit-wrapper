@@ -143,8 +143,11 @@ def main():
             remoteRepo = RemoteRepoPlatform()
             if remoteRepo.verifiAuth(username, password):
                 rootLocation = os.getcwd()
-                os.system("git clone --bare %s" % (args[1]))
-                os.chdir(newRepoName)
+                reponame = remoteRepo.repoName
+                # TODO: need to recognize hit url
+                gitRemoteUrl = remoteRepo.gitRemoteUrl
+                os.system("git clone --bare %s" % (gitRemoteUrl))
+                os.chdir(reponame)
                 # update hit repo info
                 os.system("git update-server-info")
 
