@@ -1,6 +1,9 @@
 # -- coding: utf-8 --
 class RemoteRepo():
     # read message from repo
+    # abandon for now
+    # now read message from .git file
+    # new method in class RemoteRepoPlatfrom
     def __init__(self):
         import os
         print "hit get remote url"
