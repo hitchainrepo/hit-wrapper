@@ -43,6 +43,7 @@ class RemoteRepo():
         return self.remoteFileHash
 
 class RemoteRepoPlatform():
+    # a Class to handle all method for platform
     def __init__(self):
         # get repo info from server
         import requests
@@ -73,6 +74,8 @@ class RemoteRepoPlatform():
             self.remoteIpfsUrl = "http://localhost:8080/ipfs/" + self.remoteIpfsHash
 
     def verifiAuth(self,userName,pwd):
+        # verify identity of the user
+        # Return: True/False
         import json
         import requests
         apiData = json.dumps({"method":"checkUserPassword","username":userName,"password":pwd})
