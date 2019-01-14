@@ -229,6 +229,8 @@ def main():
 
 
     else:
+        # else
+        # TODO: support more git command
         cmd = "git"
         for arg in args:
             cmd += " " + arg
