@@ -1,3 +1,4 @@
+# Script for setup the tool
 from setuptools import setup
 
 setup(

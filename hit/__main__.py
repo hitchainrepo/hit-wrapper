@@ -4,205 +4,224 @@ import os
 # import random
 # import string
 import time
-from .classmodule import RemoteRepo, AccessControl
-from .funcmodule import *
 
+import requests as requests
+
+from .classmodule import *
+from .funcmodule import *
+import urllib2
+import json
+import ConfigParser
+import getpass
+import requests
+import shutil
+
+
+remoteAddress = "47.105.76.115:8000"
 
 def main():
     args = sys.argv[1:]
     # print args
     if args[0] == 'push':
         projectLocation = os.getcwd()
-        remoteRepo = RemoteRepo()
-        # get remote ipns hash
-        remoteHash = remoteRepo.getRemoteHash()
-        # remoteUrl = remoteRepo.getRemoteUrl()
-        # get remote ipfs hash
-        remoteFileHash = remoteRepo.getRemoteFileHash()
 
-        # get authority file
-        os.system("ipfs get %s/%s" % (remoteFileHash,remoteHash))
-        accessControl = AccessControl(remoteHash)
-        accessControl.setKeyNameFromJson()
-        accessControl.getUserKey("self")
-        # judge authority
-        if accessControl.verifiAuth(accessControl.pubkey):
+        remoteRepo = RemoteRepoPlatform()
+        # get remote ipfs hash
+        remoteHash = remoteRepo.remoteIpfsHash
+        ownername = remoteRepo.userName
+        reponame = remoteRepo.repoName
+
+        username = raw_input("user name: ")
+        pwd = getpass.getpass('password: ')
+        # verify auth
+        if remoteRepo.verifiAuthRepo(username,pwd,ownername,reponame):
+            # TODO:
+            # 识别hiturl，然后处理为相应的地址
             # gen a key to store remote repo
             pathLocalRemoteRepo = genKey32()
             # download remote repo to local
             print "hit get ipfs repo to local"
-            ipfsGetRepoCmd = "ipfs get %s -o %s" % (remoteFileHash,pathLocalRemoteRepo) # 要重命名
-            print ipfsGetRepoCmd
+            ipfsGetRepoCmd = "ipfs get %s -o %s" % (remoteHash,pathLocalRemoteRepo) # 要重命名
             os.system(ipfsGetRepoCmd)
+            print "done."
             # push repo to downloaded remote repo
-            print "hit push to local"
+            print "hit push to local..."
+            # use local repo to deal push command
             gitPushCmd = "git push %s" % (pathLocalRemoteRepo)
             for arg in args[1:]:
-                # TODO:
-                # if user add a remote url, there should changes it to hit command
-                gitPushCmd += " " + arg
+                gitPushCmd = remoteRepo.dealArgs(gitPushCmd,arg)
+                # gitPushCmd += " " + arg
             os.system(gitPushCmd)
-            # get timestamp (remoteTimeStamp) of the remote repo
-            print "compare local repo with remote repo"
-            remoteTimeStamp = os.popen("ipfs cat %s/timestamp" % remoteFileHash).read()
-            if remoteRepo.timeStamp == remoteTimeStamp:
-                os.chdir(pathLocalRemoteRepo)
-                # update git repo
-                os.system("git update-server-info")
-                # gen a timestamp file for new repo
-                os.system("echo " + repr(time.time()) + " > timestamp")
-                # add new repo to ipfs network
-                # use ipfs add -r .
-                print "add repo to ipfs network"
-                newRepoHash = os.popen("ipfs add -r .").read().splitlines()[-1].split(" ")[1]
-                # get ipfs hash of new add repo, and publish it to ipns
-                accessControl.savePublicKeyOfIpns(accessControl.getPublicKeyFromJson())
-                print "publish file to ipns %s" % remoteHash
-                namePublishCmd = "ipfs name publish --key=%s %s" % (remoteHash,newRepoHash)
-                os.system(namePublishCmd)
-                accessControl.deleteIPNSKey()
-            else:
-                print "Err: The remote repo has been updated by other user, please push the repo again."
-            # rm temp local repo
+            print "done"
+            os.chdir(pathLocalRemoteRepo)
+            # update git repo
+            os.system("git update-server-info")
+
+            # add file to ipfs network
+            addResponse = os.popen("ipfs add -rH .").read()
+            lastline = addResponse.splitlines()[-1].lower()
+            if lastline != "added completely!":
+                print lastline
+                os.chdir(projectLocation)
+                shutil.rmtree("%s" % pathLocalRemoteRepo, onerror=onerror)
+                return
+            newRepoHash = addResponse.splitlines()[-2].split(" ")[1]
+
+            # update IPFS hash in the server
+            # dataUpdate = {"method":"changeIpfsHash","username":username,"password":pwd,
+            #                          "reponame":reponame,"ownername":ownername,
+            #                          "ipfsHash":newRepoHash}
+            # dataUpdate = json.dumps(dataUpdate)
+
+            # updateRequest = requests.post(remoteRepo.repoIpfsUrl, data=dataUpdate).json()
+            updateRequest = remoteRepo.changeIpfsHash(username,pwd,reponame,ownername,newRepoHash)
+
+            print updateRequest["response"]
             os.chdir(projectLocation)
-            os.system("rm -rf %s" % pathLocalRemoteRepo)
+            shutil.rmtree("%s" % pathLocalRemoteRepo, onerror=onerror)
+
         else:
-            print "ERROR: You don't have permission to push your code to the repo"
-        os.system("rm %s" % remoteHash)
+            print "ERROR: Access denied to push your code to the repo"
+
+
 
     elif args[0] == "transfer":
         if args[1][0:4] == "http":
-            repoName = args[1].split("/")[-1]
-            # accessControl = AccessControl()
-            os.system("git clone --bare %s" % (args[1]))
-            projectLocation = os.getcwd()
-            os.chdir(repoName)
-            os.system("git update-server-info")
-            os.system("echo " + repr(time.time()) + " > timestamp")  # 生成一个时间戳文件
+            repoNameBare = args[1].split("/")[-1]
 
-            newRepoHash = os.popen("ipfs add -r .").read().splitlines()[-1].split(" ")[1]
-            os.popen("ipfs key gen --type=rsa --size=2048 %s" % repoName).read()
-            namePublishCmd = "ipfs name publish --key=%s %s" % (repoName, newRepoHash)
-            remoteHash = os.popen(namePublishCmd).read().split(" ")[2][0:-1]
+            username = raw_input("user name: ")
+            password = getpass.getpass('password: ')
+            newRepoName = raw_input("repository name: ")
 
-            accessControl = AccessControl(remoteHash)
-            accessControl.setKeyName(repoName)
-            # initial authority file
-            accessControl.initJson()
+            remoteRepo = RemoteRepoPlatform()
+            if remoteRepo.verifiAuth(username,password):
+                rootLocation = os.getcwd()
+                os.system("git clone --bare %s" % (args[1]))
+                os.chdir(repoNameBare)
+                # update hit repo info
+                os.system("git update-server-info")
 
-            newRepoHash2 = os.popen("ipfs add -r .").read().splitlines()[-1].split(" ")[1]
-            namePublishCmd2 = "ipfs name publish --key=%s %s" % (repoName, newRepoHash2)
-            os.system(namePublishCmd2)
+                response = os.popen("ipfs add -rH .").read()
+                if len(response.splitlines()) > 0:
+                    lastline = response.splitlines()[-1].lower()
+                    if lastline != "added completely!":
+                        print lastline
+                        return
 
-            os.system("rm -rf %s/%s" % (projectLocation, repoName))
+                    newRepoHash = response.splitlines()[-2].split(" ")[1]
+                    # add repo ipfs hash to server
+                    # data = {"method": "hitTransfer", "username": username, "password": password, "reponame": newRepoName,
+                    #         "ipfsHash": newRepoHash}
+                    # data = json.dumps(data)
+                    # # print "update ipfs hash to %s" % remoteAddress
+                    # response = requests.post("http://" + remoteAddress + "/webservice/", data=data)
+                    # response = response.json()
+
+                    response = remoteRepo.hitTransfer(username,password,newRepoName,newRepoHash)
+
+                    print response["response"]
+
+                    os.chdir(rootLocation)
+                    # delete useless file
+                    shutil.rmtree("%s/%s" % (rootLocation, repoNameBare), onerror=onerror)
+
+                else:
+                    print "ipfs add error"
+            else:
+                print "ERROR: Wrong user name or password."
+
         elif len(args) == 1:
             # TODO:
             # this method is not finish
             # we use this to upload a local repo to ipfs netwrok
-            repoName = args[1].split("/")[-1]
-            # change local repo to a bare repo
-            # os.system("git clone --bare %s" % (args[1]))
-            projectLocation = os.getcwd()
-            os.chdir(repoName)
-            os.system("git update-server-info")
-            newRepoHash = os.popen("ipfs add -r .").read().splitlines()[-1].split(" ")[1]
-            remoteHash = os.popen("ipfs key gen --type=rsa --size=2048 %s" % repoName).read()
-            namePublishCmd = "ipfs name publish --key=%s %s" % (remoteHash, newRepoHash)
-            os.system(namePublishCmd)
+            # repoName = args[1].split("/")[-1]
+
+            username = raw_input("user name: ")
+            password = getpass.getpass('password: ')
+            newRepoName = raw_input("repository name: ")
+
+            remoteRepo = RemoteRepoPlatform()
+            if remoteRepo.verifiAuth(username, password):
+                rootLocation = os.getcwd()
+                reponame = remoteRepo.repoName
+                # TODO: need to recognize hit url
+                gitRemoteUrl = remoteRepo.gitRemoteUrl
+                os.system("git clone --bare %s" % (gitRemoteUrl))
+                os.chdir(reponame)
+                # update hit repo info
+                os.system("git update-server-info")
+
             return
 
-    # elif args[0:2] == ['gen', 'userKey']:
+    elif args[0] == "pull":
+        remoteRepoPlatform = RemoteRepoPlatform()
+        remoteUrl = remoteRepoPlatform.gitRemoteUrl
+        remoteIpfsUrl = remoteRepoPlatform.remoteIpfsUrl
+        os.system("git remote set-url origin %s" % remoteIpfsUrl)
+        cmd = "git"
+        for arg in args:
+            cmd += " " + arg
+        os.system(cmd)
+        os.system("git remote set-url origin %s" % remoteUrl)
 
-    # add user to authority file
-    # use the public key of user
-    elif args[0] == 'add-user':
-        if len(args) == 2:
-            if os.access(args[1], os.F_OK):
-                projectLocation = os.getcwd()
-                remoteRepo = RemoteRepo()
-                remoteHash = remoteRepo.getRemoteHash()
-                remoteFileHash = remoteRepo.getRemoteFileHash()
-                pathLocalRemoteRepo = genKey32()
-                ipfsGetRepoCmd = "ipfs get %s -o %s" % (remoteFileHash, pathLocalRemoteRepo)
-                os.system(ipfsGetRepoCmd)
-                os.chdir(pathLocalRemoteRepo)
-                accessControl = AccessControl(remoteHash)
-                accessControl.setKeyNameFromJson()
-                accessControl.getUserKey("self")
-                # judge authority
-                if accessControl.verifiAuth(accessControl.pubkey):
-                    pubkey = readPublicKey(args[1])
-                    accessControl.addAdmin(pubkey)
-
-                    accessControl.savePublicKeyOfIpns(accessControl.getPublicKeyFromJson())
-                    newRepoHash = os.popen("ipfs add -r .").read().splitlines()[-1].split(" ")[1]
-                    namePublishCmd = "ipfs name publish --key=%s %s" % (remoteHash, newRepoHash)
-                    os.system(namePublishCmd)
-                    accessControl.deleteIPNSKey()
+    elif args[0] == "clone":
+        remoteUrl = ""
+        remoteRepoPlatform = RemoteRepoPlatform()
+        for i,arg in enumerate(args):
+            if remoteRepoPlatform.verifyHitUrl(arg):
+                # parser url, get owner name and repo name
+                # remoteUrl = arg
+                # argsplit = arg.split("/")
+                # ownername = argsplit[-2]
+                # reponame = argsplit[-1].split(".")[-2]
+                ownername,reponame = remoteRepoPlatform.parserHitUrl(arg)
+                # ipfsHashData = json.dumps(
+                #     {"method": "getIpfsHash", "ownername": ownername, "reponame": reponame})
+                # response = requests.post("http://47.105.76.115:8000/webservice/", data=ipfsHashData).json()
+                response = remoteRepoPlatform.getRemoteIpfsHashByRepo(ownername,reponame)
+                if response["response"] == "success":
+                    remoteIpfsHash = response["ipfs_hash"]
+                    remoteIpfsUrl = "http://localhost:8080/ipfs/" + remoteIpfsHash
+                    args[i] = remoteIpfsUrl
+                    print "hit clone ipfs hash: " + args[i]
+                    if len(args) <= i + 2:
+                        args.append(reponame)
+                    break
                 else:
-                    print "ERROR: You don't have permission to add admin."
-
-                os.chdir(projectLocation)
-                os.system("rm -rf %s" % pathLocalRemoteRepo)
-                # os.system("rm %s" % )
-            else:
-                print "ERROR: The path doesn't exist."
+                    print response["response"]
+                    return
+        if len(remoteUrl) > 0:
+            cmd = "git"
+            for arg in args:
+                cmd += " " + arg
+            os.system(cmd)
+            os.system("git remote set-url origin %s" % remoteUrl)
         else:
-            print "ERROR: Please enter a path to the public key of user."
+            print "error: wrong url."
 
-    # the process of add user
-    # 判断args[2]是否为公钥路径：
-    #   不是->返回
-    #   是->判断用户是否有权限：
-    #       是->AccessControl.addAdmin()
-    #           提交权限文件
-    #       不是->返回，删除权限文件
 
-    # delete user from authority file
-    # through public key to identify user
-    elif args[0] == 'delete-user':
-        if len(args) == 2:
-            if os.access(args[1], os.F_OK):
-                projectLocation = os.getcwd()
-                remoteRepo = RemoteRepo()
-                remoteHash = remoteRepo.getRemoteHash()
-                remoteFileHash = remoteRepo.getRemoteFileHash()
-                pathLocalRemoteRepo = genKey32()
-                ipfsGetRepoCmd = "ipfs get %s -o %s" % (remoteFileHash, pathLocalRemoteRepo)
-                os.system(ipfsGetRepoCmd)
-                os.chdir(pathLocalRemoteRepo)
-                accessControl = AccessControl(remoteHash)
-                accessControl.setKeyNameFromJson()
-                accessControl.getUserKey("self")
-                # judge authority
-                if accessControl.verifiAuth(accessControl.pubkey):
-                    pubkey = readPublicKey(args[1])
-                    accessControl.deleteAdmin(pubkey)
+    elif args[0] == "commit":
+        # print args
+        for i,arg in enumerate(args):
+            if arg[0:2] == "-m":
+                if len(arg) > 2:
+                    args[i] = "-m"
+                    args.insert(i+1,"\""+ arg[2:len(arg)] +"\"")
+                    break
+                elif arg == "-m" and len(args) > i+1:
+                    temparg = "\"" + args[i + 1] + "\""
+                    args[i + 1] = temparg
+                    break
+        cmd = "git"
+        # print args
+        for arg in args:
+            cmd += " " + arg
+        os.system(cmd)
 
-                    accessControl.savePublicKeyOfIpns(accessControl.getPublicKeyFromJson())
-                    newRepoHash = os.popen("ipfs add -r .").read().splitlines()[-1].split(" ")[1]
-                    namePublishCmd = "ipfs name publish --key=%s %s" % (remoteHash, newRepoHash)
-                    os.system(namePublishCmd)
-                    accessControl.deleteIPNSKey()
-                else:
-                    print "ERROR: You don't have permission to add admin."
-
-                os.chdir(projectLocation)
-                os.system("rm -rf %s" % pathLocalRemoteRepo)
-            else:
-                print "ERROR: The path doesn't exist."
-        else:
-            print "ERROR: Please enter a path to the public key of user."
-
-    # the process of delete user
-    # 判断args[2]是否为公钥路径：
-    #   不是->返回
-    #   是->判断用户是否有权限：
-    #       是->AccessControl.deleAdmin()
-    #           提交权限文件
-    #       不是->返回，删除权限文件
 
     else:
+        # else
+        # TODO: support more git command
         cmd = "git"
         for arg in args:
             cmd += " " + arg

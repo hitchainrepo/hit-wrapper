@@ -19,6 +19,7 @@ def gitPushExchange(pathLocalRemoteRepo,args):
 
     return pushCmd
 
+# gen a random 32 byte key
 def genKey32():
     # gen a random 32 byte key
     import random
@@ -42,10 +43,38 @@ def mkdir(path):
 
 def readPublicKey(keyPath):
     # use rsa to read a publickey file
+    # not use
     with open(keyPath, 'r') as f:
         import rsa
         pubkey = rsa.PublicKey.load_pkcs1(f.read().encode())
         f.close()
     return pubkey
+
+
+def onerror(func, path, exc_info):
+    """
+    Error handler for ``shutil.rmtree``.
+
+    If the error is due to an access error (read only file)
+    it attempts to add write permission and then retries.
+
+    If the error is for another reason it re-raises the error.
+
+    Usage : ``shutil.rmtree(path, onerror=onerror)``
+    """
+    import stat
+    import os
+    if not os.access(path, os.W_OK):
+        # Is the error an access error ?
+        os.chmod(path, stat.S_IWUSR)
+        func(path)
+    else:
+        raise
+
+# def handleIpfsAddResponse(addResponse):
+#     lastline = addResponse.splitlines()[-1].lower()
+#     if lastline != "added completely!":
+#         print lastline
+#     return False
 
 

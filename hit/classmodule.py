@@ -1,6 +1,9 @@
 # -- coding: utf-8 --
 class RemoteRepo():
     # read message from repo
+    # abandon for now
+    # now read message from .git file
+    # new method in class RemoteRepoPlatfrom
     def __init__(self):
         import os
         print "hit get remote url"
@@ -42,8 +45,160 @@ class RemoteRepo():
     def getRemoteFileHash(self):
         return self.remoteFileHash
 
+class RemoteRepoPlatform():
+    # a Class to handle all method for platform
+    def __init__(self):
+        # get repo info from server
+        import requests
+        import json
+        import os
+        gitRemoteCmd = "git remote get-url --all origin"
+        self.gitRemoteUrl = os.popen(gitRemoteCmd).read().strip('\n')
+        argsplit = self.gitRemoteUrl.split("/")
+        self.userName = argsplit[-2]
+        self.repoName = argsplit[-1].split(".")[-2]
+
+        # 待补充真正的url获取IPFS地址
+        # the ip of server api
+        self.repoIpfsUrl = "http://47.105.76.115:8000/webservice/"
+        # self.remoteIpfs = client.service.getIpfsHash(self.repoName)
+        ipfsHashData = json.dumps({"method":"getIpfsHash","ownername":self.userName,"reponame":self.repoName})
+        response = requests.post(self.repoIpfsUrl,data=ipfsHashData).json()
+        if response["response"] == "success":
+            self.remoteIpfsHash = response["ipfs_hash"]
+            self.remoteIpfsUrl = "http://localhost:8080/ipfs/" + self.remoteIpfsHash
+
+    def verifiAuth(self,userName,pwd):
+        # verify identity of the user
+        # Return: True/False
+        import json
+        import requests
+        apiData = json.dumps({"method":"checkUserPassword","username":userName,"password":pwd})
+        response = requests.post(self.remoteIpfsUrl,data=apiData).json()
+        if response["response"] == "success":
+            return True
+        else:
+            return False
+
+    def hitTransfer(self,username,password,newRepoName,newRepoHash):
+        import json
+        import requests
+        data = {"method": "hitTransfer", "username": username, "password": password, "reponame": newRepoName,
+                "ipfsHash": newRepoHash}
+        data = json.dumps(data)
+        # print "update ipfs hash to %s" % remoteAddress
+        response = requests.post(self.repoIpfsUrl, data=data).json()
+        return response
+
+    def getRemoteIpfsHashByRepo(self,ownerName,repoName):
+        import json
+        import requests
+        ipfsHashData = json.dumps({"method": "getIpfsHash", "ownername": ownerName, "reponame": repoName})
+        response = requests.post(self.repoIpfsUrl, data=ipfsHashData).json()
+        return response
+
+    def changeIpfsHash(self,username,pwd,reponame,ownername,ipfshash):
+        import json
+        import requests
+        dataUpdate = {"method": "changeIpfsHash", "username": username, "password": pwd,
+                      "reponame": reponame, "ownername": ownername,
+                      "ipfsHash": ipfshash}
+        dataUpdate = json.dumps(dataUpdate)
+
+        updateRequest = requests.post(self.repoIpfsUrl, data=dataUpdate).json()
+        return updateRequest
+
+    def verifiAuthRepo(self,userName,pwd,ownerName,repoName):
+        import json
+        import requests
+        apiData = json.dumps({"method":"checkUserPasswordRepo", "username": userName, "password": pwd, "reponame": repoName, "ownername":ownerName})
+        response = requests.post(self.remoteIpfsUrl, data=apiData).json()
+        if response["response"] == "success":
+            return True
+        else:
+            return False
+
+    def getIpfsHash(self,hitUrl):
+        import json
+        import requests
+        ownername,reponame = self.parserHitUrl(hitUrl)
+        ipfsHashData = json.dumps(
+            {"method": "getIpfsHash", "ownername": ownername, "reponame": reponame})
+        response = requests.post("http://47.105.76.115:8000/webservice/", data=ipfsHashData).json()
+        if response["response"] == "success":
+            remoteIpfsHash = response["ipfs_hash"]
+            return remoteIpfsHash
+        else:
+            return 0
+
+    def parserHitUrl(self,hitUrl):
+        # TODO:
+        # 返回处理结果
+        if self.verifyHitUrl(hitUrl):
+            argsplit = hitUrl.split("/")
+            ownername = argsplit[-2]
+            reponame = argsplit[-1].split(".")[-2]
+            return ownername,reponame
+        else:
+            print "error hit url"
+            return False
+
+    def verifyHitUrl(self,hitUrl):
+        if hitUrl[0:26] == "http://47.105.76.115:8000/" or hitUrl[0:19] == "47.105.76.115:8000/":
+            return True
+        else:
+            return False
+
+    def dealArgs(self, gitPushCmd, arg):
+        # TODO:
+        # if user add a remote url, there should changes it to hit command
+        if self.verifyHitUrl(arg):
+            gitPushCmd += ""
+        else:
+            gitPushCmd += " " + arg
+        return gitPushCmd
+
+class Config():
+    # config .hit/ folder
+    # not use for now
+    def __init__(self):
+        self.path = ".hit/config"
+
+    def initConfig(self,repoName,userName):
+        # init config file
+        import ConfigParser
+        from funcmodule import mkdir
+        mkdir(".hit")
+        cf = ConfigParser.ConfigParser()
+        cf.read(self.path)
+        cf.add_section("remote \"origin\"")
+        cf.set("remote \"origin\"","repoName",repoName)
+        cf.set("remote \"origin\"","userName",userName)
+        with open(self.path, "w+") as f:
+            cf.write(f)
+
+    def changeConfig(self,repoName,userName):
+        # update config file
+        import ConfigParser
+        from funcmodule import mkdir
+        mkdir(".hit")
+        cf = ConfigParser.ConfigParser()
+        cf.read(self.path)
+        cf.set("remote \"origin\"", "repoName", repoName)
+        cf.set("remote \"origin\"", "userName", userName)
+        with open(self.path, "w+") as f:
+            cf.write(f)
+
+    def getHitConfig(self):
+        # get hit config
+        import ConfigParser
+        cf = ConfigParser.ConfigParser()
+        cf.read(self.path)
+        return cf
+
 class AccessControl():
     # authority management
+    # not use for now
     def __init__(self,pathhash):
         # initial
         import os
